@@ -59,7 +59,8 @@ int main() {
     double start = -175.5;
     double end = 174.5;
     double step = (end - start) / (N - 1);
-
+   
+    //nuDFT indexing for x y and z
     for (int i = 0; i < N; i++) {
         kx[i] = start + i * step;
     }
@@ -71,19 +72,7 @@ int main() {
     for (int i = 0; i < N; i++) {
         kz[i] = start + i * step;
     }
-/*
-    for (int i = 0; i < N; i++) {
-        kx[i] = (double)i - ((double)N / 2.0);
-    }
-
-    for (int i = 0; i < N; i++) {
-        ky[i] = (double)i - ((double)N / 2.0);
-    }
-
-    for (int i = 0; i < N; i++) {
-        kz[i] = (double)i - ((double)N / 2.0);
-    }
-*/
+   
     //Loading in the UVW samples
     FILE *fp;
     double uvw[N][Cols];
@@ -121,6 +110,8 @@ int main() {
             }
         }
     }
+   
+   //Getting the initial dirty image
     inudft3d(reconstructed_image, visibilities, N, uvw, kx,ky,kz);
 
     double complex max_val = reconstructed_image[0];
@@ -210,15 +201,19 @@ int main() {
 
         //Placing the maximum value into the array of zeros at the right index
         image_max[max_index1]=max_val1;
-
+        
+        //Getting the new max frequency array
         nudft3d(frequency_max, image_max,N, uvw,kx,ky,kz);
-
+        
+        //Subtracting the maximum frequency array from the residual frequency from the previous iteration
         for (int i=0; i<N; i++){
             frequency_new[i]=frequency_new[i]-frequency_max[i];
                         }
-
+        
+        //Getting the new residual image
         inudft3d(image_new,frequency_new, N, uvw,kx,ky,kz);
 
+        //Finding the maximum of the residual image
         max_val1 = image_new[0];
         max_index1 = 0;
 
@@ -236,7 +231,9 @@ int main() {
                 }
             }
         }
-        image_clean[max_index1]=max_val1;
+        
+        //Placing the maxmimum in the clean image array
+        image_clean[max_index1]+=max_val1;
         p=p+1;
         printf("The iteration number is %d \n", p);
 
@@ -260,7 +257,7 @@ int main() {
     }
 
     fp = fopen("snapshot3DCLEAN.txt", "w");
-    // Write the array to the file
+    // Write the CLEAN image array to the file to be plotted in gnuplot or MATLAB
     for (int i = 0; i < N; i++) {
         for (int j = 0; j < N; j++) {
             for (int k = 0; k < N; k++) {
