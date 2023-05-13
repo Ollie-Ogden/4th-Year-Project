@@ -90,8 +90,10 @@ int main() {
             }
         }
 
+   //Finding the initial dirty image
     idft2d(reconstructed_image, visibilities, N, Cols, uvw);
-   // Calling the maximum value function
+   
+   // To find the maximum point in the dirty image
     double complex max_value;
 
     int maxindex=0;
@@ -148,7 +150,7 @@ int main() {
     //Placing our second value into the CLEAN image
     image_clean[maxindex_new]=image_new[maxindex_new];
     int p=0;
-  while (p<800){
+    while (p<800){
   //while (creal(image_new[maxindex_new])>0.28*creal(reconstructed_image[maxindex])){
 
         //Initialising an array of zeros to input our maximum value into
@@ -158,14 +160,19 @@ int main() {
 
         //Placing the maximum value into the array of zeros at the right index
         image_max[maxindex_new]=image_new[maxindex_new];
-
+   
+       //getting the max frequency array
         dft2d(frequency_max, image_max, N, uvw);
-
+     
+       //Subtracting to get the new residual frequency array
         for(int i=0; i<N; i++){
             frequency_new[i]=frequency_new[i]-0.2*frequency_max[i];
         }
+       
+       //New residual image
         idft2d(image_new,frequency_new, N, Cols, uvw);
 
+       //Finding maximum for new residual image
         maxindex_new=0;
 
         for (int i = 1; i < N*N; ++i)
@@ -177,6 +184,8 @@ int main() {
         p=p+1;
         printf("The iteration number is %d \n", p);
     }
+   
+   
     double complex snapshot[N][N];
     for (int i = 0; i < N; i++){
         for (int j = 0; j < N; j++){
@@ -186,7 +195,7 @@ int main() {
         }
 
     fp = fopen("snapshot2DDFT.txt", "w");
- // Write the matrix to the file
+ // Write the reconstructed image array to the file to be plotted in MATLAB
     for (int i = 0; i < N; i++) {
         for (int j = 0; j < N; j++) {
             fprintf(fp, "%.5f ", creal(snapshot[i][j]));
@@ -206,7 +215,7 @@ int main() {
         }
 
     fp = fopen("snapshot2DCLEANDFT.txt", "w");
- // Write the matrix to the file
+ // Write the CLEAN image array to the file to be plotted in MATLAB
     for (int i = 0; i < N; i++) {
         for (int j = 0; j < N; j++) {
             fprintf(fp, "%.5f ", creal(snapshotCLEAN[i][j]));
