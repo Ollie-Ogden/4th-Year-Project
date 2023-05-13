@@ -52,7 +52,8 @@ int main() {
     double start = -175.5;
     double end = 174.5;
     double step = (end - start) / (N - 1);
-
+   
+    // nuDFT indexing arrays for x y and z
     for (int i = 0; i < N; i++) {
         kx[i] = start + i * step;
     }
@@ -60,12 +61,6 @@ int main() {
     for (int i = 0; i < N; i++) {
         ky[i] = start + i * step;
     }
-
-    // Print out the array
-    for (int i = 0; i < N; i++) {
-        printf("%0.1f ", kx[i]);
-    }
-    printf("\n");
 
     //Loading in the UVW samples
     FILE *fp;
@@ -103,9 +98,10 @@ int main() {
             }
         }
 
+   //Create the initial dirty image
     inudft2d(reconstructed_image, visibilities, N, uvw, kx,ky);
 
-       // Calling the maximum value function
+    //Finding the maximum value
     double complex max_value;
 
     int maxindex=0;
@@ -172,14 +168,19 @@ int main() {
 
         //Placing the maximum value into the array of zeros at the right index
         image_max[maxindex_new]=image_new[maxindex_new];
-
+     
+        //Getting the new max frequency array
         nudft2d(frequency_max, image_max, N, uvw,kx,ky);
-
+        
+        // Subtracting the max frequency array from the previous iteration frequency array
         for(int i=0; i<N; i++){
             frequency_new[i]=frequency_new[i]-frequency_max[i];
         }
+     
+        //Getting the new residual image
         inudft2d(image_new,frequency_new, N, uvw, kx,ky);
-
+     
+        // Finding the new maximum
         maxindex_new=0;
 
         for (int i = 1; i < N*N; ++i)
@@ -201,7 +202,7 @@ int main() {
         }
 
     fp = fopen("snapshot2D.txt", "w");
- // Write the matrix to the file
+    // Write the reconstructed image array to the file to be plotted in MATLAB
     for (int i = 0; i < N; i++) {
         for (int j = 0; j < N; j++) {
             fprintf(fp, "%.5f ", creal(snapshot[i][j]));
@@ -211,10 +212,7 @@ int main() {
 
     // Close the file
     fclose(fp);
-
-    // Close the file
-    fclose(fp);
-
+   
     double complex snapshotCLEAN[N][N];
     for (int i = 0; i < N; i++){
         for (int j = 0; j < N; j++){
@@ -224,7 +222,7 @@ int main() {
         }
 
     fp = fopen("snapshot2DCLEAN.txt", "w");
- // Write the matrix to the file
+    // Write the CLEAN image array to the file to be plotted in MATLAB
     for (int i = 0; i < N; i++) {
         for (int j = 0; j < N; j++) {
             fprintf(fp, "%.5f ", creal(snapshotCLEAN[i][j]));
