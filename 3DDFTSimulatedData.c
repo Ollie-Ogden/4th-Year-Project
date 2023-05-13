@@ -57,6 +57,7 @@ void idft3d(double complex *reconstructed_image, double complex *freq, int N){
         }
     }
 
+// Creating the spheres
 #define N 20
 #define RADIUS1 4
 #define RADIUS2 2
@@ -80,13 +81,13 @@ int main() {
     point center1 = {N/2 - 2, N/2-4, N/2};
     point center2 = {N/2 + 5, N/2 + 4, N/2};
     point center3 = {N/2, N/2 + 5, N/2 + 6};
-    double complex matrix[N * N * N];
     double complex sphere[N*N*N];
     double complex simulated_data[N * N * N];
     double complex reconstructed_image[N * N * N];
     double complex random_samples[N * N * N];
     double complex freq[N * N * N];
-
+    
+    //Populating the Sphere array with 1's if the point is on or inside the sphere and 0 if not
     for (i = 0; i < N; i++) {
         for (j = 0; j < N; j++) {
             for (k = 0; k < N; k++) {
@@ -98,13 +99,13 @@ int main() {
                 double d2 = distance(center2, (point) {x, y, z});
                 double d3 = distance(center3, (point) {x, y, z});
                 if (d1 <= RADIUS1) {
-                    matrix[idx] = 1;
+                    sphere[idx] = 1;
                 } else if (d2 <= RADIUS2) {
-                    matrix[idx] = 1;
+                    sphere[idx] = 1;
                 } else if (d3 <= RADIUS3) {
-                    matrix[idx] = 1;
+                    sphere[idx] = 1;
                 } else {
-                    matrix[idx] = 0;
+                    sphere[idx] = 0;
                 }
             }
         }
@@ -122,7 +123,7 @@ int main() {
     }
 
     // DFT of the simulated data to get my frequency data
-    dft3d(freq, matrix,N);
+    dft3d(freq, sphere,N);
 
     //Initialising my reconstructed image array of zeros
     for (int i = 0; i < N; i++)
@@ -167,7 +168,8 @@ int main() {
     }
     // Finding the inverse 3d DFT to get back to my original array
     idft3d(reconstructed_image, random_samples, N);
-
+    
+    //Finding the Maximum point in the reconstructed image
     double complex max_val = reconstructed_image[0];
     int max_index = 0;
 
@@ -230,7 +232,8 @@ int main() {
     //Finding the iDFT of the new frequency to find the next maximum value
     double complex image_new[N*N*N];
     idft3d(image_new,frequency_new, N);
-
+    
+    //Finding the new maximum in the residual image
     double complex max_val1 = image_new[0];
     int max_index1 = 0;
 
@@ -246,7 +249,7 @@ int main() {
         }
     }
 
-    //Placing our second value into the CLEAN image
+    //Placing our second max value value into the CLEAN image
     image_clean[max_index1]=max_val1;
 
     int p=0;
@@ -277,8 +280,11 @@ int main() {
 
         //Placing the maximum value into the array of zeros at the right index
         image_max[max_index1]=max_val1;
-
+        
+        //DFT to get the new freuquency array
         dft3d(frequency_max, image_max,N);
+        
+        //Same process as above
         for (int i=0; i<N; i++){
                 for(int j=0; j<N; j++){
                         for(int k=0; k<N;k++){
@@ -297,8 +303,11 @@ int main() {
                         }
                 }
         }
+        
+        //iDFT to get the new residal image
         idft3d(image_new,frequency_new, N);
-
+         
+        //Finding the new maximum
         max_val1 = image_new[0];
         max_index1 = 0;
 
@@ -345,10 +354,11 @@ int main() {
             }
         }
     }
-    //Code for opening up a text file called data and writing the new matrix to it that can be opened and plotted in Matlab.
+    
+    // Opening up a text file and writing the input sphere to it to be plotted in Matlab.
     FILE *fp;
 
-    fp = fopen("sphereinput40percent.txt", "w");
+    fp = fopen("sphereinput25percent.txt", "w");
 
     // Write the array to the file
     for (int i = 0; i < N; i++) {
@@ -360,10 +370,11 @@ int main() {
         }
         fprintf(fp, "\n");
     }
-        // Close the file
+    
+    // Close the file
     fclose(fp);
 
-        double complex sphereresidual[N][N][N];
+    double complex sphereresidual[N][N][N];
     for (int i = 0; i < N; i++){
         for (int j = 0; j < N; j++){
             for (int k=0; k<N; k++){
@@ -372,8 +383,8 @@ int main() {
             }
         }
     }
-    //Code for opening up a text file called data and writing the new matrix to it that can be opened and plotted in Matlab
-
+    
+    // Opening up a text file and writing the residual image to it to be plotted in Matlab.
     fp = fopen("sphereresidual.txt", "w");
 
     // Write the array to the file
@@ -386,10 +397,11 @@ int main() {
         }
         fprintf(fp, "\n");
     }
-        // Close the file
+    
+    // Close the file
     fclose(fp);
 
-        double complex sphereCLEAN[N][N][N];
+    double complex sphereCLEAN[N][N][N];
     for (int i = 0; i < N; i++){
         for (int j = 0; j < N; j++){
             for (int k=0; k<N; k++){
@@ -398,9 +410,9 @@ int main() {
             }
         }
     }
-    //Code for opening up a text file called data and writing the new matrix to it that can be opened and plotted in Matlab.
-
-
+    
+    
+    // Opening up a text file and writing the CLEAN Image to it to be plotted in Matlab.
     fp = fopen("3DCLEANTEST.txt", "w");
 
     // Write the array to the file
@@ -413,6 +425,7 @@ int main() {
         }
         fprintf(fp, "\n");
     }
-        // Close the file
+    
+    // Close the file
     fclose(fp);
 }
