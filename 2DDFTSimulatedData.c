@@ -73,7 +73,7 @@ int main() {
     }
     fclose(fp);
 
-
+    // Finding the DFT of the simulated data
     dft2d(freq, simulated_data, M, N);
 
     // Generating a random number of samples from the frequency domain
@@ -176,7 +176,8 @@ int main() {
 
         //Placing the maximum value into the array of zeros at the right index
         image_max[maxindex_new]=image_new[maxindex_new];
-
+      
+        // Same process as earlier
         dft2d(frequency_max, image_max, M, N);
 
         for (int i=0; i<M*N; i++){
@@ -206,7 +207,7 @@ int main() {
 
 
 
-    //Code for opening up a text file called data and writing the new matrix to it that can be opened and plotted in Matlab.
+    //Code for opening up a text file and writing the CLEAN image to it that can be plotted in Matlab.
     fp = fopen("CleanImage1.txt", "w");
 
     for (int i = 0; i < M; i++) {
@@ -221,7 +222,7 @@ int main() {
     }
     fclose(fp);
 
-        //Code for opening up a text file called data and writing the new matrix to it that can be opened and plotted in Matlab.
+    //Code for opening up a text file and writing the CL resultant to it that can be plotted in Matlab.
     fp = fopen("ResultantNoise1.txt", "w");
 
     for (int i = 0; i < M; i++) {
@@ -236,7 +237,7 @@ int main() {
     }
     fclose(fp);
 
-            //Code for opening up a text file called data and writing the new matrix to it that can be opened and plotted in Matlab.
+    //Code for opening up a text file and writing the dirty image to it that can be plotted in Matlab.
     fp = fopen("ReconstructedImage1.txt", "w");
 
     for (int i = 0; i < M; i++) {
