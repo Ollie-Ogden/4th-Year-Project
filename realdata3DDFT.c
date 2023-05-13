@@ -95,9 +95,10 @@ int main() {
         }
     }
 
+    // iDFT to get the reconstructed dirty image
     idft3d(reconstructed_image, visibilities, N, Cols, uvw);
 
-
+    // Finding the maximum in the image
     double complex max_val = reconstructed_image[0];
     int max_index = 0;
 
@@ -185,15 +186,18 @@ int main() {
 
         //Placing the maximum value into the array of zeros at the right index
         image_max[max_index1]=max_val1;
-
+         
+        //New frequency max array
         dft3d(frequency_max, image_max,N, uvw);
-
+         
+        //Taking the new frequencies away from the previous iteration
         for (int i=0; i<N; i++){
             frequency_new[i]=frequency_new[i]-frequency_max[i];
                         }
-
+        //New residual image
         idft3d(image_new,frequency_new, N, Cols, uvw);
-
+         
+        //Max value in the new residual image
         max_val1 = image_new[0];
         max_index1 = 0;
 
@@ -211,6 +215,8 @@ int main() {
                 }
             }
         }
+        
+        //Placing new macx value in the clean array
         image_clean[max_index1]=max_val1;
         p=p+1;
         printf("The iteration number is %d \n", p);
@@ -233,7 +239,8 @@ int main() {
             }
         }
     }
-
+   
+   //Printing the CLEANED image into a text file to be plotted in gnuplot or MATLAB
     fp = fopen("snapshot3DCLEANDFT.txt", "w");
     // Write the array to the file
     for (int i = 0; i < N; i++) {
